@@ -1,6 +1,10 @@
 const aiService = require('../services/aiService');
 const PDFDocument = require('pdfkit');
-const Resume = require('../models/Resume');
+const {
+  generateResumeContent,
+  analyzeResume
+} = require('../services/resumeService');
+
 
 exports.generateResume = async (req, res) => {
   try {

@@ -1,0 +1,13 @@
+Evaluate the resume for ATS systems based on:
+- Keyword matching
+- Formatting
+- Skills relevance
+- Experience clarity
+
+Provide:
+- ATS Score (0–100)
+- Reason for score
+- Final recommendation (Accept / Improve / Reject)
+
+Resume Text:
+{{resume_text}}

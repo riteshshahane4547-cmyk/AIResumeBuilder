@@ -1,0 +1,17 @@
+Used when resume is uploaded.
+You are an ATS resume analyzer.
+
+Analyze the given resume text and provide:
+1. ATS compatibility score (out of 100)
+2. Strengths of the resume
+3. Weaknesses
+4. Missing skills
+5. Improvement suggestions
+
+Resume Text:
+{{resume_text}}
+
+Job Description:
+{{job_description}}
+
+Give output in clear bullet points.

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
-const API_URL = `${API_BASE_URL}/api`;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://airesumebuilder-4-0nez.onrender.com';
+const API_URL = `${API_BASE_URL.replace(/\/$/, '')}/api`;
 
 export const generateResume = async (data) => {
   const response = await axios.post(`${API_URL}/builder/generate`, data);

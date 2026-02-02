@@ -84,7 +84,7 @@ const AIAssistant = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 flex flex-col z-50 overflow-hidden" style={{ height: '500px' }}>
+    <div className="fixed inset-0 sm:inset-auto sm:top-auto sm:left-auto sm:bottom-6 sm:right-6 w-full h-full sm:w-96 sm:h-[500px] bg-white sm:rounded-xl shadow-2xl border border-gray-200 flex flex-col z-50 overflow-hidden">
       {/* Header */}
       <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
         <div className="flex items-center gap-2">

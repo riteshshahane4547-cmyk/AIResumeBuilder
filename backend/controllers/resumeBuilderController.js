@@ -1,5 +1,6 @@
 const aiService = require('../services/aiService');
 const PDFDocument = require('pdfkit');
+<<<<<<< HEAD
 const Resume = require('../models/Resume');
 const fs = require('fs');
 const pdf = require('pdf-parse-new');
@@ -47,6 +48,13 @@ exports.chatWithAI = async (req, res) => {
     res.status(500).json({ error: 'Failed to chat with AI' });
   }
 };
+=======
+const {
+  generateResumeContent,
+  analyzeResume
+} = require('../services/resumeService');
+
+>>>>>>> f878bf8b4206cf60d0a81255ffabcd294278b176
 
 exports.generateResume = async (req, res) => {
   try {

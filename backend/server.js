@@ -7,7 +7,8 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5001;
 
-sequelize.sync().then(() => {
+// Sync database with alter: true to update schema if it changed
+sequelize.sync({ alter: true }).then(() => {
   console.log('Database synced');
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

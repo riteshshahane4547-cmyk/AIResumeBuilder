@@ -3,16 +3,26 @@ You are an expert resume writer.
 
 Create a professional resume for the following details:
 Name: {{name}}
+Job Role: {{job_role}}
+Email: {{email}}
+Phone: {{phone}}
+LinkedIn: {{linkedin}}
+Location: {{city}}, {{state}}, {{country}}
 Education: {{education}}
 Skills: {{skills}}
 Experience: {{experience}}
-Job Role: {{job_role}}
+Projects: {{projects}}
+Certificates: {{certificates}}
+Achievements: {{achievements}}
+Hobbies: {{hobbies}}
 
 Guidelines:
 - Use ATS-friendly language
 - Use strong action verbs
 - Keep content concise and professional
 - Do not include unnecessary symbols
+- If any optional field (like projects, certificates) is empty in the input, omit it or leave it empty in the JSON, but preferably generate content if reasonable based on other context or leave empty.
+- Ensure the "summary" is generated based on the provided skills and experience.
 
 IMPORTANT: Return the result ONLY as a valid JSON object with the following structure. Do not include any markdown formatting or explanations outside the JSON.
 
@@ -20,9 +30,12 @@ IMPORTANT: Return the result ONLY as a valid JSON object with the following stru
   "personalInfo": {
     "fullName": "{{name}}",
     "role": "{{job_role}}",
-    "email": "email@example.com", 
-    "phone": "+1 234 567 890",
-    "linkedin": "linkedin.com/in/user"
+    "email": "{{email}}", 
+    "phone": "{{phone}}",
+    "linkedin": "{{linkedin}}",
+    "city": "{{city}}",
+    "state": "{{state}}",
+    "country": "{{country}}"
   },
   "summary": "Professional summary here...",
   "skills": ["Skill 1", "Skill 2", ...],
@@ -40,5 +53,15 @@ IMPORTANT: Return the result ONLY as a valid JSON object with the following stru
       "school": "School Name",
       "year": "Year"
     }
-  ]
+  ],
+  "projects": [
+    {
+      "title": "Project Title",
+      "description": "Project Description",
+      "technologies": "Tech Stack"
+    }
+  ],
+  "certificates": ["Certificate 1", "Certificate 2"],
+  "achievements": ["Achievement 1", "Achievement 2"],
+  "hobbies": ["Hobby 1", "Hobby 2"]
 }

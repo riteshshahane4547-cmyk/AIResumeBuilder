@@ -42,6 +42,27 @@ const templates = [
     description: 'Simple & Effective',
     color: 'bg-gray-50 border-gray-200',
     tags: ['Entry Level']
+  },
+  {
+    id: 'tech',
+    name: 'Tech',
+    description: 'Modern & Skill Focused',
+    color: 'bg-gray-900 text-white',
+    tags: ['Developer']
+  },
+  {
+    id: 'elegant',
+    name: 'Elegant',
+    description: 'Sophisticated & Classy',
+    color: 'bg-amber-50 border-amber-200',
+    tags: ['Executive']
+  },
+  {
+    id: 'compact',
+    name: 'Compact',
+    description: 'Dense & One-Page',
+    color: 'bg-white border-gray-300',
+    tags: ['Efficient']
   }
 ];
 

@@ -9,7 +9,10 @@ function ResumeForm({ onSubmit, isLoading }) {
     email: '',
     jobRole: '',
     phone: '',
-    linkedin: ''
+    linkedin: '',
+    city: '',
+    state: '',
+    country: ''
   });
 
   // Dynamic Lists
@@ -20,6 +23,14 @@ function ResumeForm({ onSubmit, isLoading }) {
   const [experienceList, setExperienceList] = useState([
     { role: '', company: '', duration: '', description: '' }
   ]);
+
+  const [projectList, setProjectList] = useState([
+    { title: '', description: '', technologies: '' }
+  ]);
+
+  const [certificates, setCertificates] = useState(['']);
+  const [achievements, setAchievements] = useState(['']);
+  const [hobbies, setHobbies] = useState(['']);
 
   const [skills, setSkills] = useState('');
 
@@ -62,11 +73,44 @@ function ResumeForm({ onSubmit, isLoading }) {
     setExperienceList(list);
   };
 
+  // Handlers for Projects
+  const addProject = () => {
+    setProjectList([...projectList, { title: '', description: '', technologies: '' }]);
+  };
+
+  const removeProject = (index) => {
+    const list = [...projectList];
+    list.splice(index, 1);
+    setProjectList(list);
+  };
+
+  const handleProjectChange = (index, field, value) => {
+    const list = [...projectList];
+    list[index][field] = value;
+    setProjectList(list);
+  };
+
+  // Generic List Handlers (Certificates, Achievements, Hobbies)
+  const handleListChange = (setter, list, index, value) => {
+    const newList = [...list];
+    newList[index] = value;
+    setter(newList);
+  };
+
+  const addListItem = (setter, list) => {
+    setter([...list, '']);
+  };
+
+  const removeListItem = (setter, list, index) => {
+    const newList = [...list];
+    newList.splice(index, 1);
+    setter(newList);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     
     // Format data for the AI/Backend
-    // We convert the structured lists into the string format the backend expects
     
     let educationString = educationList
       .filter(ed => ed.degree || ed.school)
@@ -80,16 +124,24 @@ function ResumeForm({ onSubmit, isLoading }) {
           .map(exp => `${exp.role} at ${exp.company} (${exp.duration})\n${exp.description}`)
           .join('\n\n');
 
-    // If Fresher, maybe we want to emphasize projects instead? 
-    // For now, we'll keep it simple as requested.
+    let projectString = projectList
+      .filter(p => p.title)
+      .map(p => `${p.title} (Tech: ${p.technologies})\n${p.description}`)
+      .join('\n\n');
+
+    let certificatesString = certificates.filter(c => c.trim()).join('\n');
+    let achievementsString = achievements.filter(a => a.trim()).join('\n');
+    let hobbiesString = hobbies.filter(h => h.trim()).join('\n');
 
     const finalData = {
-      name: basicInfo.name,
-      email: basicInfo.email,
-      jobRole: basicInfo.jobRole,
+      ...basicInfo,
       skills: skills,
       education: educationString,
-      experience: experienceString
+      experience: experienceString,
+      projects: projectString,
+      certificates: certificatesString,
+      achievements: achievementsString,
+      hobbies: hobbiesString
     };
 
     onSubmit(finalData);
@@ -134,6 +186,22 @@ function ResumeForm({ onSubmit, isLoading }) {
           <div>
             <label className="block text-sm font-medium text-gray-700">Phone (Optional)</label>
             <input type="tel" name="phone" value={basicInfo.phone} onChange={handleBasicChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">LinkedIn (Optional)</label>
+            <input type="text" name="linkedin" value={basicInfo.linkedin} onChange={handleBasicChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2" placeholder="linkedin.com/in/..." />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">City</label>
+            <input type="text" name="city" value={basicInfo.city} onChange={handleBasicChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">State</label>
+            <input type="text" name="state" value={basicInfo.state} onChange={handleBasicChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Country</label>
+            <input type="text" name="country" value={basicInfo.country} onChange={handleBasicChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2" />
           </div>
         </div>
       </div>
@@ -224,6 +292,114 @@ function ResumeForm({ onSubmit, isLoading }) {
           ))}
         </div>
       )}
+
+      {/* Projects - Dynamic */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center border-b pb-2">
+          <h3 className="text-lg font-bold text-gray-800">Projects</h3>
+          <button type="button" onClick={addProject} className="text-sm text-blue-600 hover:text-blue-800 font-medium">+ Add Project</button>
+        </div>
+        
+        {projectList.map((proj, index) => (
+          <div key={index} className="bg-gray-50 p-4 rounded-lg border relative group">
+            {projectList.length > 1 && (
+              <button type="button" onClick={() => removeProject(index)} className="absolute top-2 right-2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            )}
+            <div className="grid grid-cols-1 gap-3">
+              <input 
+                placeholder="Project Title" 
+                value={proj.title} 
+                onChange={(e) => handleProjectChange(index, 'title', e.target.value)}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2 text-sm" 
+              />
+              <input 
+                placeholder="Technologies Used (e.g. React, Node.js)" 
+                value={proj.technologies} 
+                onChange={(e) => handleProjectChange(index, 'technologies', e.target.value)}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2 text-sm" 
+              />
+              <textarea 
+                placeholder="Project Description..." 
+                value={proj.description} 
+                onChange={(e) => handleProjectChange(index, 'description', e.target.value)}
+                rows="2"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2 text-sm" 
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Certificates */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center border-b pb-2">
+          <h3 className="text-lg font-bold text-gray-800">Certificates</h3>
+          <button type="button" onClick={() => addListItem(setCertificates, certificates)} className="text-sm text-blue-600 hover:text-blue-800 font-medium">+ Add Certificate</button>
+        </div>
+        {certificates.map((cert, index) => (
+          <div key={index} className="flex gap-2 items-center group">
+            <input 
+              placeholder="Certificate Name" 
+              value={cert} 
+              onChange={(e) => handleListChange(setCertificates, certificates, index, e.target.value)}
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2 text-sm" 
+            />
+             {certificates.length > 1 && (
+              <button type="button" onClick={() => removeListItem(setCertificates, certificates, index)} className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Achievements */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center border-b pb-2">
+          <h3 className="text-lg font-bold text-gray-800">Achievements</h3>
+          <button type="button" onClick={() => addListItem(setAchievements, achievements)} className="text-sm text-blue-600 hover:text-blue-800 font-medium">+ Add Achievement</button>
+        </div>
+        {achievements.map((ach, index) => (
+          <div key={index} className="flex gap-2 items-center group">
+            <input 
+              placeholder="Achievement" 
+              value={ach} 
+              onChange={(e) => handleListChange(setAchievements, achievements, index, e.target.value)}
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2 text-sm" 
+            />
+            {achievements.length > 1 && (
+              <button type="button" onClick={() => removeListItem(setAchievements, achievements, index)} className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Hobbies */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center border-b pb-2">
+          <h3 className="text-lg font-bold text-gray-800">Hobbies</h3>
+          <button type="button" onClick={() => addListItem(setHobbies, hobbies)} className="text-sm text-blue-600 hover:text-blue-800 font-medium">+ Add Hobby</button>
+        </div>
+        {hobbies.map((hobby, index) => (
+          <div key={index} className="flex gap-2 items-center group">
+            <input 
+              placeholder="Hobby" 
+              value={hobby} 
+              onChange={(e) => handleListChange(setHobbies, hobbies, index, e.target.value)}
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2 text-sm" 
+            />
+            {hobbies.length > 1 && (
+              <button type="button" onClick={() => removeListItem(setHobbies, hobbies, index)} className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
 
       {/* Skills */}
       <div className="space-y-4">

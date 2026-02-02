@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
+const API_URL = `${API_BASE_URL}/api`;
 
 export const generateResume = async (data) => {
   const response = await axios.post(`${API_URL}/builder/generate`, data);
@@ -26,6 +27,23 @@ export const getHistory = async () => {
 
 export const analyzeResume = async (formData) => {
   const response = await axios.post(`${API_URL}/analyzer/analyze`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+  return response.data;
+};
+
+export const chatWithAI = async (message, context) => {
+  const response = await axios.post(`${API_URL}/builder/chat`, { message, context });
+  return response.data;
+};
+
+export const uploadChatDocument = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const response = await axios.post(`${API_URL}/builder/upload-context`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }

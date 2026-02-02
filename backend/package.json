@@ -14,9 +14,10 @@
     "multer": "^1.4.5-lts.1",
     "openai": "^4.20.1",
     "pdf-parse": "^1.1.1",
+    "pdf-parse-new": "^2.0.0",
     "pdfkit": "^0.14.0",
-    "sqlite3": "^5.1.6",
-    "sequelize": "^6.35.1"
+    "sequelize": "^6.35.1",
+    "sqlite3": "^5.1.6"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

@@ -4,7 +4,12 @@ const path = require('path');
 require('dotenv').config();
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'mock-key',
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY || 'mock-key',
+  defaultHeaders: {
+    "HTTP-Referer": "http://localhost:3000",
+    "X-Title": "AI Resume Builder",
+  }
 });
 
 const getPromptTemplate = (filename) => {
@@ -21,23 +26,45 @@ const generateResumeContent = async (data) => {
   let prompt = getPromptTemplate('resume_builder_prompt.txt');
   
   // Replace placeholders
-  prompt = prompt.replace('{{name}}', data.name)
-                 .replace('{{education}}', data.education)
-                 .replace('{{skills}}', data.skills)
-                 .replace('{{experience}}', data.experience)
-                 .replace('{{job_role}}', data.jobRole);
+  prompt = prompt.replace(/{{name}}/g, data.name || '')
+                 .replace(/{{education}}/g, data.education || '')
+                 .replace(/{{skills}}/g, data.skills || '')
+                 .replace(/{{experience}}/g, data.experience || '')
+                 .replace(/{{job_role}}/g, data.jobRole || '')
+                 .replace(/{{email}}/g, data.email || '')
+                 .replace(/{{phone}}/g, data.phone || '')
+                 .replace(/{{linkedin}}/g, data.linkedin || '')
+                 .replace(/{{city}}/g, data.city || '')
+                 .replace(/{{state}}/g, data.state || '')
+                 .replace(/{{country}}/g, data.country || '')
+                 .replace(/{{projects}}/g, data.projects || '')
+                 .replace(/{{certificates}}/g, data.certificates || '')
+                 .replace(/{{achievements}}/g, data.achievements || '')
+                 .replace(/{{hobbies}}/g, data.hobbies || '');
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.OPENAI_API_KEY && !process.env.OPENROUTER_API_KEY) {
     return mockResumeGeneration(data);
   }
 
   try {
-    const completion = await openai.chat.completions.create({
+    const isOpenAI = !process.env.OPENROUTER_API_KEY && process.env.OPENAI_API_KEY;
+    const options = {
       messages: [{ role: "system", content: "You are a helpful assistant that outputs only valid JSON." }, { role: "user", content: prompt }],
-      model: "gpt-3.5-turbo",
-      response_format: { type: "json_object" }
-    });
-    return completion.choices[0].message.content;
+      model: process.env.AI_MODEL || "gpt-3.5-turbo",
+    };
+    
+    // Only add response_format if using OpenAI directly or if model is known to support it well
+    if (isOpenAI || (process.env.AI_MODEL && process.env.AI_MODEL.includes('gpt'))) {
+       options.response_format = { type: "json_object" };
+    }
+
+    const completion = await openai.chat.completions.create(options);
+    let content = completion.choices[0].message.content;
+    
+    // Clean up markdown code blocks if present
+    content = content.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    return content;
   } catch (error) {
     console.error("OpenAI Error:", error);
     return mockResumeGeneration(data);
@@ -50,18 +77,27 @@ const analyzeResume = async (resumeText, jobDescription) => {
   prompt = prompt.replace('{{resume_text}}', resumeText)
                  .replace('{{job_description}}', jobDescription || 'General Software Engineering Role');
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.OPENAI_API_KEY && !process.env.OPENROUTER_API_KEY) {
     return mockResumeAnalysis();
   }
 
   try {
     const completion = await openai.chat.completions.create({
       messages: [{ role: "system", content: "You are a helpful assistant." }, { role: "user", content: prompt }],
-      model: "gpt-3.5-turbo",
+      model: process.env.AI_MODEL || "gpt-3.5-turbo",
     });
-    return completion.choices[0].message.content;
+    
+    let content = completion.choices[0].message.content;
+    
+    // Clean up markdown code blocks if present
+    content = content.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    return content;
   } catch (error) {
-    console.error("OpenAI Error:", error);
+    console.error("OpenAI/OpenRouter API Error in analyzeResume:", error);
+     if (error.response) {
+        console.error("API Response Data:", error.response.data);
+    }
     return mockResumeAnalysis();
   }
 };
@@ -106,7 +142,33 @@ const mockResumeAnalysis = () => {
   `;
 };
 
+const chatWithAI = async (message, context = []) => {
+  if (!process.env.OPENAI_API_KEY && !process.env.OPENROUTER_API_KEY) {
+    return "I am an AI assistant. Please configure the API key to chat with me.";
+  }
+
+  try {
+    const messages = [
+      { role: "system", content: "You are a helpful AI assistant for a Resume Builder application. Help the user with resume writing, career advice, and interview tips. Keep answers concise." },
+      ...context,
+      { role: "user", content: message }
+    ];
+
+    const completion = await openai.chat.completions.create({
+      messages: messages,
+      model: process.env.AI_MODEL || "gpt-3.5-turbo",
+    });
+
+    return completion.choices[0].message.content;
+  } catch (error) {
+    console.error("OpenAI Chat Error:", error);
+    return "Sorry, I encountered an error while processing your request.";
+  }
+};
+
 module.exports = {
   generateResumeContent,
-  analyzeResume
+  analyzeResume,
+  chatWithAI
 };
+
